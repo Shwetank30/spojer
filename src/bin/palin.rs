@@ -69,24 +69,4 @@ fn next_palindrome_str(s: &str) -> String {
         inc[len - 1 - i] = inc[i];
     }
     String::from_utf8(inc).unwrap()
-
-    // let mut n = match u64::from_str_radix(s, 10) {
-    //     Ok(num) => num + 1,
-    //     Err(_) => return String::from(s),
-    // };
-    // loop {
-    //     let candidate = format!("{:0width$}", n, width = len);
-    //     if is_palindrome_str(&candidate) {
-    //         return candidate;
-    //     }
-    //     n += 1;
-    //     if candidate.len() > len {
-    //         // If we overflow the lenght, return the smallest palindrome of the next length
-    //         return format!("1{:0width$}1", "", width = len - 1);
-    //     }
-    // }
 }
-
-// fn is_palindrome_str(s: &str) -> bool {
-//     s.chars().eq(s.chars().rev())
-// }
