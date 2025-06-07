@@ -40,10 +40,28 @@ fn format_addition(a: &str, b: &str) -> String {
     let op = '+';
     let max_len = a.len().max(b.len() + 1).max(sum.len());
     let a_padded = format!("{:>width$}", a, width = max_len);
-    let b_padded = format!("{}{:>width$}", op, b, width = max_len - 1);
-    let line = "-".repeat(max_len.max(b_padded.len()));
+    let b_with_op = format!("{}{}", op, b);
+    let b_padded = format!("{:>width$}", b_with_op, width = max_len);
+
+    let left = a_padded
+        .find(|c: char| c != ' ')
+        .unwrap()
+        .min(b_padded.find(|c: char| c != ' ').unwrap());
+    let right = a_padded
+        .rfind(|c: char| c != ' ')
+        .unwrap()
+        .max(b_padded.rfind(|c: char| c != ' ').unwrap());
+
+    let mut dash_line = String::new();
+    for i in 0..max_len {
+        if i >= left && i <= right {
+            dash_line.push('-');
+        } else {
+            dash_line.push(' ');
+        }
+    }
     let sum_padded = format!("{:>width$}", sum, width = max_len);
-    format!("{}\n{}\n{}\n{}", a_padded, b_padded, line, sum_padded)
+    format!("{}\n{}\n{}\n{}", a_padded, b_padded, dash_line, sum_padded)
 }
 
 fn format_subtraction(a: &str, b: &str) -> String {
@@ -51,10 +69,27 @@ fn format_subtraction(a: &str, b: &str) -> String {
     let op = '-';
     let max_len = a.len().max(b.len() + 1).max(diff.len());
     let a_padded = format!("{:>width$}", a, width = max_len);
-    let b_padded = format!("{}{:>width$}", op, b, width = max_len - 1);
-    let line = "-".repeat(max_len.max(b_padded.len()));
+    let b_with_op = format!("{}{}", op, b);
+    let b_padded = format!("{:>width$}", b_with_op, width = max_len);
+    let left = a_padded
+        .find(|c: char| c != ' ')
+        .unwrap()
+        .min(b_padded.find(|c: char| c != ' ').unwrap());
+    let right = a_padded
+        .rfind(|c: char| c != ' ')
+        .unwrap()
+        .max(b_padded.rfind(|c: char| c != ' ').unwrap());
+
+    let mut dash_line = String::new();
+    for i in 0..max_len {
+        if i >= left && i <= right {
+            dash_line.push('-');
+        } else {
+            dash_line.push(' ');
+        }
+    }
     let diff_padded = format!("{:>width$}", diff, width = max_len);
-    format!("{}\n{}\n{}\n{}", a_padded, b_padded, line, diff_padded)
+    format!("{}\n{}\n{}\n{}", a_padded, b_padded, dash_line, diff_padded)
 }
 
 fn format_multiplication(a: &str, b: &str) -> String {
