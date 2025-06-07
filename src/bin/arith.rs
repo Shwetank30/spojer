@@ -38,57 +38,45 @@ fn calculate_expression(expression: &str) -> String {
 fn format_addition(a: &str, b: &str) -> String {
     let sum = add_strings(a, b);
     let op = '+';
-    let max_len = a.len().max(b.len() + 1).max(sum.len());
-    let a_padded = format!("{:>width$}", a, width = max_len);
     let b_with_op = format!("{}{}", op, b);
-    let b_padded = format!("{:>width$}", b_with_op, width = max_len);
 
-    let left = a_padded
-        .find(|c: char| c != ' ')
-        .unwrap()
-        .min(b_padded.find(|c: char| c != ' ').unwrap());
-    let right = a_padded
-        .rfind(|c: char| c != ' ')
-        .unwrap()
-        .max(b_padded.rfind(|c: char| c != ' ').unwrap());
+    let sep_len = b_with_op.len().max(sum.len());
+    let max_len = a.len().max(sep_len);
+    let a_padded = format!("{:>width$}", a, width = max_len);
+    let b_padded = format!("{:>width$}", b_with_op, width = max_len);
+    let sum_padded = format!("{:>width$}", sum, width = max_len);
 
     let mut dash_line = String::new();
-    for i in 0..max_len {
-        if i >= left && i <= right {
-            dash_line.push('-');
-        } else {
-            dash_line.push(' ');
-        }
+    for _ in 0..(max_len - sep_len) {
+        dash_line.push(' ');
     }
-    let sum_padded = format!("{:>width$}", sum, width = max_len);
+    for _ in 0..sep_len {
+        dash_line.push('-');
+    }
     format!("{}\n{}\n{}\n{}", a_padded, b_padded, dash_line, sum_padded)
 }
 
 fn format_subtraction(a: &str, b: &str) -> String {
     let diff = subtract_strings(a, b);
     let op = '-';
-    let max_len = a.len().max(b.len() + 1).max(diff.len());
-    let a_padded = format!("{:>width$}", a, width = max_len);
     let b_with_op = format!("{}{}", op, b);
-    let b_padded = format!("{:>width$}", b_with_op, width = max_len);
-    let left = a_padded
-        .find(|c: char| c != ' ')
-        .unwrap()
-        .min(b_padded.find(|c: char| c != ' ').unwrap());
-    let right = a_padded
-        .rfind(|c: char| c != ' ')
-        .unwrap()
-        .max(b_padded.rfind(|c: char| c != ' ').unwrap());
 
-    let mut dash_line = String::new();
-    for i in 0..max_len {
-        if i >= left && i <= right {
-            dash_line.push('-');
-        } else {
-            dash_line.push(' ');
-        }
-    }
+    let sep_len = b_with_op.len().max(diff.len());
+    let max_len = a.len().max(sep_len);
+
+    let a_padded = format!("{:>width$}", a, width = max_len);
+    let b_padded = format!("{:>width$}", b_with_op, width = max_len);
     let diff_padded = format!("{:>width$}", diff, width = max_len);
+
+    // Separator: right-aligned, sep_len dashes
+    let mut dash_line = String::new();
+    for _ in 0..(max_len - sep_len) {
+        dash_line.push(' ');
+    }
+    for _ in 0..sep_len {
+        dash_line.push('-');
+    }
+
     format!("{}\n{}\n{}\n{}", a_padded, b_padded, dash_line, diff_padded)
 }
 
@@ -102,52 +90,58 @@ fn format_multiplication(a: &str, b: &str) -> String {
     let mut lines = vec![a_padded.clone(), b_padded.clone()];
 
     let mut partial_results = Vec::new();
+    let mut partial_widths = Vec::new();
+
     if b.len() > 1 {
         for (i, digit) in b.chars().rev().enumerate() {
             let part = multiply_strings(a, &digit.to_string());
-            let left_pad = max_len - part.len() - i;
-            let mut part_line = String::new();
-            for _ in 0..left_pad {
-                part_line.push(' ');
+            let mut part_line = format!("{:>width$}", part, width = max_len);
+            if i > 0 {
+                part_line = part_line[i..].to_string() + &" ".repeat(i);
             }
-            part_line.push_str(&part);
-            for _ in 0..i {
-                part_line.push(' ');
-            }
+            partial_widths.push(part_line.trim_end().len());
             partial_results.push(part_line);
         }
     }
 
-    let first = &lines[0];
-    let second = &lines[1];
-    let left = first
-        .find(|c: char| c != ' ')
-        .unwrap()
-        .min(second.find(|c: char| c != ' ').unwrap());
-    let right = first
-        .rfind(|c: char| c != ' ')
-        .unwrap()
-        .max(second.rfind(|c: char| c != ' ').unwrap());
-    let mut dash_line = String::new();
-    for i in 0..max_len {
-        if i >= left && i <= right {
-            dash_line.push('-');
-        } else {
-            dash_line.push(' ');
-        }
+    // First separator: as long as the max of (b_with_op.len(), first partial product), right-aligned
+    let sep1_len = if !partial_results.is_empty() {
+        b_with_op.len().max(partial_widths[0])
+    } else {
+        b_with_op.len().max(prod.len())
+    };
+    let mut sep1 = String::new();
+    for _ in 0..(max_len - sep1_len) {
+        sep1.push(' ');
     }
-    lines.push(dash_line);
+    for _ in 0..sep1_len {
+        sep1.push('-');
+    }
+    lines.push(sep1);
 
+    // Add partials
     if !partial_results.is_empty() {
         for p in &partial_results {
             lines.push(p.clone());
         }
         if partial_results.len() > 1 {
-            let width = prod.len().max(partial_results.last().unwrap().len());
-            lines.push(format!("{:->width$}", "", width = width));
+            // Second separator: as long as the product, right-aligned
+            let mut sep2 = String::new();
+            for _ in 0..(max_len - prod.len()) {
+                sep2.push(' ');
+            }
+            for _ in 0..prod.len() {
+                sep2.push('-');
+            }
+            lines.push(sep2);
+            lines.push(format!("{:>width$}", prod, width = max_len));
+        } else {
+            lines.push(format!("{:>width$}", prod, width = max_len));
         }
+    } else {
+        lines.push(format!("{:>width$}", prod, width = max_len));
     }
-    lines.push(format!("{:>width$}", prod, width = prod.len().max(max_len)));
+
     lines.join("\n")
 }
 
