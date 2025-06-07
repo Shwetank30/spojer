@@ -106,12 +106,13 @@ fn format_multiplication(a: &str, b: &str) -> String {
 
     // First separator: as long as the max of (b_with_op.len(), first partial product), right-aligned
     let sep1_len = if !partial_results.is_empty() {
-        b_with_op.len().max(partial_widths[0])
+        b_with_op.len().max(partial_results[0].trim_start().len())
     } else {
         b_with_op.len().max(prod.len())
     };
+    let sep1_start = max_len - sep1_len;
     let mut sep1 = String::new();
-    for _ in 0..(max_len - sep1_len) {
+    for _ in 0..sep1_start {
         sep1.push(' ');
     }
     for _ in 0..sep1_len {
