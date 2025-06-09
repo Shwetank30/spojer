@@ -12,11 +12,8 @@ fn main() {
         .trim()
         .split_whitespace()
         .map(|x| x.parse::<u64>().unwrap());
-    let mut last_digit = 0u8;
-    for num in arr {
-        last_digit = (last_digit * 10 + (num % 10) as u8) % 10;
-    }
-    if last_digit == 0 {
+
+    if arr.last().unwrap() % 10 == 0 {
         println!("Yes");
     } else {
         println!("No");
