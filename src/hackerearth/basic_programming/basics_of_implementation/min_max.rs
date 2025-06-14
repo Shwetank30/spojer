@@ -10,7 +10,10 @@
 * 1<= N <= 1000
 * 1<= a[i] <= 100
 */
-use std::{collections::HashSet, io::{self, BufRead}};
+use std::{
+    collections::HashSet,
+    io::{self, BufRead},
+};
 
 fn main() {
     let stdin = io::stdin();
