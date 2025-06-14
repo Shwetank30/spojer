@@ -9,3 +9,5 @@ cargo run --bin <filename_without_extension>
 ```
 
 Replace `<filename_without_extension>` with the name of the Rust file (without the `.rs` extension).
+
+Code has been segregated into various folders.
