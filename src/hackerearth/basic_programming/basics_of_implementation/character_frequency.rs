@@ -56,7 +56,7 @@ fn main() {
     }
     let z = max_freq;
 
-    let mut answer = 1;
+    let mut answer = -1;
     for insert_pos in 0..=n {
         let mut new_chars = Vec::with_capacity(n + 1);
         new_chars.extend_from_slice(&s_chars[..insert_pos]);
